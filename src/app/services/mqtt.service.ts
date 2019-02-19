@@ -13,7 +13,7 @@ export class MqttService {
   }
 
   connect() {
-    this.client = new Paho.MQTT.Client('192.168.1.110', 8080, 'ionic_client');
+    this.client = new Paho.MQTT.Client('localhost', 8080, 'ionic_client');
 
     //this.onMessage();
     //this.onConnectionLost();

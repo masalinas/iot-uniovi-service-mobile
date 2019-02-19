@@ -4,7 +4,7 @@ import * as am4core from '@amcharts/amcharts4/core';
 import * as am4charts from '@amcharts/amcharts4/charts';
 import am4themes_animated from '@amcharts/amcharts4/themes/animated';
 
-import { MqttService } from '../mqtt.service';
+import { MqttService } from '../services/mqtt.service';
 
 am4core.useTheme(am4themes_animated);
 
@@ -18,8 +18,6 @@ export class Tab1Page implements OnInit, AfterViewInit, OnDestroy {
 	private dateAxis: am4charts.DateAxis;
 	private seriesTemp: am4charts.LineSeries;
 	private seriesHum: am4charts.LineSeries;
-	private bulletTemp: am4charts.Bullet;
-	private bulletHum: am4charts.Bullet;
 
 	constructor(private mqttService: MqttService, private zone: NgZone) {}
 
@@ -65,7 +63,7 @@ export class Tab1Page implements OnInit, AfterViewInit, OnDestroy {
 			// create chart instance
 			let chart = am4core.create('chartdiv', am4charts.XYChart);
 
-			chart.padding(10, 10, 10, 10);
+			// chart.padding(10, 10, 10, 10);
 
 			chart.zoomOutButton.disabled = true;
 
@@ -74,7 +72,7 @@ export class Tab1Page implements OnInit, AfterViewInit, OnDestroy {
 			chart.data = data;
 
 			// Increase contrast by taking evey second color
-			chart.colors.step = 2;
+			chart.colors.step = 5;
 			const interfaceColors = new am4core.InterfaceColorSet();
 
 			const dateAxis = chart.xAxes.push(new am4charts.DateAxis());
@@ -109,6 +107,7 @@ export class Tab1Page implements OnInit, AfterViewInit, OnDestroy {
 			valueAxisHum.renderer.axisFills.template.disabled = true;
 			valueAxisHum.renderer.ticks.template.disabled = true;
 			valueAxisHum.renderer.opposite = true;
+			
 
 			const seriesTemp = chart.series.push(new am4charts.LineSeries());
 			seriesTemp.yAxis = valueAxisTemp;
@@ -116,7 +115,8 @@ export class Tab1Page implements OnInit, AfterViewInit, OnDestroy {
 			seriesTemp.dataFields.valueY = 'value';
 			seriesTemp.name = 'TP01';
 			seriesTemp.tooltipText = '[bold]{name}: {valueY} ºC[/]';
-			seriesTemp.legendSettings.itemValueText = '{valueY} ºC';
+			// seriesTemp.legendSettings.itemValueText = '{valueY} ºC';
+			seriesTemp.legendSettings.valueText = '{valueY.close} ºC';
 			seriesTemp.strokeWidth = 2;
 			seriesTemp.interpolationDuration = 500;
 			seriesTemp.defaultState.transitionDuration = 2;
@@ -128,11 +128,16 @@ export class Tab1Page implements OnInit, AfterViewInit, OnDestroy {
 			seriesHum.dataFields.valueY = 'value';
 			seriesHum.name = 'RH01';
 			seriesHum.tooltipText = '[bold]{name}: {valueY} %[/]';
-			seriesHum.legendSettings.itemValueText = '{valueY} %';
+			// seriesHum.legendSettings.itemValueText = '{valueY} %';
+			seriesHum.legendSettings.valueText = '{valueY.close} %';
 			seriesHum.strokeWidth = 2;
 			seriesHum.interpolationDuration = 500;
 			seriesHum.defaultState.transitionDuration = 2;
 			seriesHum.tensionX = 0.8;
+
+			// series label color
+			valueAxisTemp.renderer.labels.template.fill = seriesTemp.stroke;
+			valueAxisHum.renderer.labels.template.fill = seriesHum.stroke;
 
 			chart.events.on('datavalidated', function() {
 				dateAxis.zoom({ start: 1 / 15, end: 1.2 }, false, true);
